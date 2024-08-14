@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" type="x-icon" href="../static/assets/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Proza+Libre:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&display=swap"
+        rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+    <title>Chatbot</title>
+    <style>
+        div#mock-interview {
+            max-height: 80vh;
+            overflow-y: scroll;
+            background-color: inherit !important;
+        }
+
+        #interview {
+            width: 80vw;
+            position: relative;
+            left: 10vw;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            list-style-type: none;
+            font-family: "Montserrat", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 200;
+            font-style: normal;
+            font-size: 23px;
+        }
+
+        #interview>li.response {
+            align-self: self-start;
+            padding: 20px;
+            border: 1px solid rgb(150, 150, 150);
+            border-radius: 30px;
+            border-bottom-left-radius: 0px;
+        }
+
+        #interview>li.query {
+            align-self: self-end;
+            padding: 20px;
+            border-radius: 30px;
+            border-bottom-right-radius: 0px;
+            background-color: rgb(70, 70, 70);
+        }
+
+        #input-box {
+            resize: none;
+            position: fixed;
+            bottom: 2vh;
+            z-index: 1;
+            width: 90vw;
+            height: 50px;
+            left: 5vw;
+            padding-left: 30px;
+            overflow: hidden;
+            border: none;
+            border-radius: 30px;
+            color: #ffffff;
+            background-color: rgb(90, 90, 90);
+            font-family: "Montserrat", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 200;
+            font-style: normal;
+            font-size: 23px;
+            line-height: 2lh;
+        }
+
+        #input-box:focus {
+            outline: none;
+        }
+
+        #input-box::-webkit-input-placeholder {
+            color: #ffffff;
+            font-family: "Montserrat", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 200;
+            font-style: normal;
+            font-size: 23px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mock-interview" data-bs-spy="scroll" data-bs-target="#navbar-example2" data-bs-root-margin="0px 0px -40%"
+        data-bs-smooth-scroll="true" class="scrollspy-example bg-body-tertiary p-3 rounded-2" tabindex="0">
+        <ul id="interview"></ul>
+        <form>
+            <textarea type="text" placeholder="Enter your prompt here" id="input-box" autofocus></textarea>
+        </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        const inputBox = $("#input-box");
+        const interview = $("#interview");
+        function addResponse(query) {
+            $.ajax({
+                url: "http://localhost:3000/getResponse",
+                type: "POST",
+                data: {
+                    userQuery: query,
+                },
+                success: function (result) {
+                    let newResponse = document.createElement("li");
+                    newResponse.className = "response";
+                    newResponse.innerHTML = "<p>" + result + "</p>";
+                    interview.append(newResponse);
+                    newResponse.scrollIntoView();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert('Error Sending Query!');
+                },
+            });
+        }
+        function addQuery() {
+            let query = inputBox.val();
+            inputBox.val("");
+            let newQuery = document.createElement("li");
+            newQuery.className = "query";
+            newQuery.innerHTML = "<p>" + query + "</p>";
+            interview.append(newQuery);
+            newQuery.scrollIntoView();
+            return query;
+        }
+
+        let firstPrompt = document.createElement("li");
+        firstPrompt.className = "response";
+        firstPrompt.innerHTML = "<p>Hi welcome to chatbot 👋<br>Enter your prompt to begin chatting</p>";
+        interview.append(firstPrompt);
+        firstPrompt.scrollIntoView();
+        inputBox.on("keyup", function () {
+            if (event.which === 13 && !event.shiftKey) {
+                const userQuery = addQuery();
+                addResponse(userQuery);
+            }
+        });
+    </script>
+</body>
+
+</html>
